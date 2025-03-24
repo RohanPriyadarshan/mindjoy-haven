@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress';
@@ -153,7 +152,7 @@ const SelfAssessment = () => {
       questions: [
         {
           id: 1,
-          text: 'I've been feeling optimistic about the future',
+          text: "I've been feeling optimistic about the future",
           options: [
             { text: 'None of the time', value: 0 },
             { text: 'Rarely', value: 1 },
@@ -164,7 +163,7 @@ const SelfAssessment = () => {
         },
         {
           id: 2,
-          text: 'I've been feeling useful',
+          text: "I've been feeling useful",
           options: [
             { text: 'None of the time', value: 0 },
             { text: 'Rarely', value: 1 },
@@ -175,7 +174,7 @@ const SelfAssessment = () => {
         },
         {
           id: 3,
-          text: 'I've been feeling relaxed',
+          text: "I've been feeling relaxed",
           options: [
             { text: 'None of the time', value: 0 },
             { text: 'Rarely', value: 1 },
@@ -186,7 +185,7 @@ const SelfAssessment = () => {
         },
         {
           id: 4,
-          text: 'I've been dealing with problems well',
+          text: "I've been dealing with problems well",
           options: [
             { text: 'None of the time', value: 0 },
             { text: 'Rarely', value: 1 },
@@ -197,7 +196,7 @@ const SelfAssessment = () => {
         },
         {
           id: 5,
-          text: 'I've been thinking clearly',
+          text: "I've been thinking clearly",
           options: [
             { text: 'None of the time', value: 0 },
             { text: 'Rarely', value: 1 },
@@ -291,7 +290,7 @@ const SelfAssessment = () => {
       } else {
         return { 
           level: 'Severe', 
-          description: 'Your responses indicate severe symptoms. It's recommended to consult with a mental health professional.',
+          description: "Your responses indicate severe symptoms. It's recommended to consult with a mental health professional.",
           color: 'bg-red-500'
         };
       }
