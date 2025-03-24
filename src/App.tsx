@@ -9,6 +9,7 @@ import Mood from "./pages/Mood";
 import Assessment from "./pages/Assessment";
 import Achievements from "./pages/Achievements";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/achievements" element={<Achievements />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

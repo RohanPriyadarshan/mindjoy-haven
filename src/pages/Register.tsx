@@ -8,13 +8,13 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Logged in successfully!");
-    navigate('/');
+    toast.success("Account created successfully!");
+    navigate('/login');
   };
 
   return (
@@ -31,34 +31,37 @@ const Login = () => {
 
         <div className="glass dark:glass-dark card-shadow rounded-2xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold">Welcome to Solace AI</h1>
-            <p className="text-muted-foreground mt-2">Sign in to your account</p>
+            <h1 className="text-2xl font-bold">Join Solace AI</h1>
+            <p className="text-muted-foreground mt-2">Create your account</p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="hello@example.com" />
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" type="text" placeholder="John Doe" required />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Button variant="link" className="p-0 h-auto text-sm">
-                  Forgot password?
-                </Button>
-              </div>
-              <Input id="password" type="password" />
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="hello@example.com" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input id="confirmPassword" type="password" required />
             </div>
             <Button type="submit" className="w-full">
-              Sign in
+              Create Account
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Don't have an account?{' '}
-              <Button variant="link" className="p-0" onClick={() => navigate('/register')}>
-                Sign up
+              Already have an account?{' '}
+              <Button variant="link" className="p-0" onClick={() => navigate('/login')}>
+                Sign in
               </Button>
             </p>
           </div>
@@ -68,4 +71,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
