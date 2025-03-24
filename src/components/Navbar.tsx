@@ -25,7 +25,7 @@ const NavItem = ({ to, icon, label, active }: { to: string; icon: React.ReactNod
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // useEffect only runs on the client, so now we can safely show the UI
@@ -56,7 +56,7 @@ const Navbar = () => {
 
         {/* Mobile menu button */}
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle mounted={mounted} resolvedTheme={resolvedTheme} setTheme={setTheme} />
+          <ThemeToggle mounted={mounted} theme={theme} setTheme={setTheme} />
           <button
             onClick={toggleMenu}
             className="flex items-center p-2"
@@ -77,7 +77,7 @@ const Navbar = () => {
               active={pathname === item.to}
             />
           ))}
-          <ThemeToggle mounted={mounted} resolvedTheme={resolvedTheme} setTheme={setTheme} />
+          <ThemeToggle mounted={mounted} theme={theme} setTheme={setTheme} />
           {pathname !== '/login' && (
             <Link to="/login">
               <Button className="ml-2" variant="outline" size="sm">
@@ -120,23 +120,23 @@ const Navbar = () => {
 // Extract ThemeToggle as a separate component
 const ThemeToggle = ({ 
   mounted, 
-  resolvedTheme, 
+  theme, 
   setTheme 
 }: { 
   mounted: boolean; 
-  resolvedTheme: string | undefined; 
+  theme: string | undefined; 
   setTheme: (theme: string) => void; 
 }) => {
   if (!mounted) return null;
   
   return (
     <Toggle
-      pressed={resolvedTheme === "dark"}
-      onPressedChange={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      pressed={theme === "dark"}
+      onPressedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
       aria-label="Toggle dark mode"
       className="p-2"
     >
-      {resolvedTheme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
+      {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
     </Toggle>
   );
 };
