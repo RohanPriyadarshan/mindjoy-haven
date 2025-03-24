@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ProgressBar } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import { ArrowRight, ArrowLeft, Check, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
