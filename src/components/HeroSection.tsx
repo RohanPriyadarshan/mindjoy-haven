@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, BarChart2, ClipboardCheck, Award } from 'lucide-react';
+import { MessageCircle, BarChart2, ClipboardCheck, Award, LogIn } from 'lucide-react';
 
 const FeatureCard = ({ 
   icon, 
@@ -23,7 +23,7 @@ const FeatureCard = ({
   
   return (
     <div 
-      className={`glass card-shadow rounded-2xl p-6 flex flex-col items-center text-center animate-slide-up opacity-0`}
+      className={`glass dark:glass-dark card-shadow rounded-2xl p-6 flex flex-col items-center text-center animate-slide-up opacity-0`}
       style={{ animationDelay: delay, animationFillMode: 'forwards' }}
     >
       <div className="bg-primary/10 p-3 rounded-full mb-4">
@@ -90,13 +90,24 @@ const HeroSection = () => {
           A supportive space to nurture your mental wellbeing through conversation, 
           tracking, and self-discovery.
         </p>
-        <Button 
-          onClick={() => navigate('/chat')} 
-          size="lg" 
-          className="animate-pulse-subtle"
-        >
-          Get Started
-        </Button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button 
+            onClick={() => navigate('/chat')} 
+            size="lg" 
+            className="animate-pulse-subtle w-full sm:w-auto"
+          >
+            Get Started
+          </Button>
+          <Button 
+            onClick={() => navigate('/login')} 
+            size="lg" 
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            <LogIn className="mr-2 h-5 w-5" />
+            Login
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
