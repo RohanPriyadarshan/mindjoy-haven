@@ -47,7 +47,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile menu button */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-4 md:hidden">
           <ThemeToggle />
           <button
             onClick={toggleMenu}

@@ -1,42 +1,27 @@
 
-import React from 'react';
-import { Moon, Sun, Monitor } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useEffect } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
+  
+  // Toggle between light and dark mode
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-full">
-          {theme === 'light' && <Sun size={18} />}
-          {theme === 'dark' && <Moon size={18} />}
-          {theme === 'system' && <Monitor size={18} />}
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')} className="flex items-center gap-2">
-          <Sun size={16} />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')} className="flex items-center gap-2">
-          <Moon size={16} />
-          <span>Dark</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')} className="flex items-center gap-2">
-          <Monitor size={16} />
-          <span>System</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className={cn("flex items-center space-x-2", className)}>
+      <Sun size={18} className="text-muted-foreground" />
+      <Switch 
+        checked={theme === 'dark'} 
+        onCheckedChange={toggleTheme}
+        aria-label="Toggle dark mode"
+      />
+      <Moon size={18} className="text-muted-foreground" />
+    </div>
   );
 }
