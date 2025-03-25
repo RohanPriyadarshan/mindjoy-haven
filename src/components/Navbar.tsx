@@ -1,11 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MessageCircle, BarChart2, ClipboardCheck, Award, Moon, Sun, LogIn } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Menu, X, MessageCircle, BarChart2, ClipboardCheck, Award, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Toggle } from '@/components/ui/toggle';
 
 const NavItem = ({ to, icon, label, active }: { to: string; icon: React.ReactNode; label: string; active: boolean }) => (
   <Link 
@@ -25,13 +23,6 @@ const NavItem = ({ to, icon, label, active }: { to: string; icon: React.ReactNod
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // useEffect only runs on the client, so now we can safely show the UI
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
   
@@ -56,7 +47,6 @@ const Navbar = () => {
 
         {/* Mobile menu button */}
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle mounted={mounted} theme={theme} setTheme={setTheme} />
           <button
             onClick={toggleMenu}
             className="flex items-center p-2"
@@ -77,7 +67,6 @@ const Navbar = () => {
               active={pathname === item.to}
             />
           ))}
-          <ThemeToggle mounted={mounted} theme={theme} setTheme={setTheme} />
           {pathname !== '/login' && (
             <Link to="/login">
               <Button className="ml-2" variant="outline" size="sm">
@@ -114,30 +103,6 @@ const Navbar = () => {
         )}
       </div>
     </header>
-  );
-};
-
-// Extract ThemeToggle as a separate component
-const ThemeToggle = ({ 
-  mounted, 
-  theme, 
-  setTheme 
-}: { 
-  mounted: boolean; 
-  theme: string | undefined; 
-  setTheme: (theme: string) => void; 
-}) => {
-  if (!mounted) return null;
-  
-  return (
-    <Toggle
-      pressed={theme === "dark"}
-      onPressedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-      aria-label="Toggle dark mode"
-      className="p-2"
-    >
-      {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
-    </Toggle>
   );
 };
 
