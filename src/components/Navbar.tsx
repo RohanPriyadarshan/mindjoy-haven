@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, MessageCircle, BarChart2, ClipboardCheck, Award, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const NavItem = ({ to, icon, label, active }: { to: string; icon: React.ReactNode; label: string; active: boolean }) => (
   <Link 
@@ -47,6 +48,7 @@ const Navbar = () => {
 
         {/* Mobile menu button */}
         <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
           <button
             onClick={toggleMenu}
             className="flex items-center p-2"
@@ -67,6 +69,7 @@ const Navbar = () => {
               active={pathname === item.to}
             />
           ))}
+          <ThemeToggle />
           {pathname !== '/login' && (
             <Link to="/login">
               <Button className="ml-2" variant="outline" size="sm">
