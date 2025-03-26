@@ -1,7 +1,19 @@
 
 export function getAdvancedResponse(userInput: string): string {
   // Convert to lowercase for easier pattern matching
-  const input = userInput.toLowerCase();
+  const input = userInput.toLowerCase().trim();
+  
+  // Check for greetings first
+  if (isGreeting(input)) {
+    const greetingResponses = [
+      "Hello! How are you feeling today?",
+      "Hi there! It's nice to hear from you. How has your day been?",
+      "Hey! I'm here to chat. What's on your mind?",
+      "Greetings! How can I support you today?",
+      "Hello! I'm your mental health assistant. How are you doing right now?"
+    ];
+    return greetingResponses[Math.floor(Math.random() * greetingResponses.length)];
+  }
   
   // Check for emotional patterns
   if (input.includes('sad') || input.includes('depressed') || input.includes('unhappy')) {
@@ -31,4 +43,18 @@ export function getAdvancedResponse(userInput: string): string {
     ];
     return genericResponses[Math.floor(Math.random() * genericResponses.length)];
   }
+}
+
+// Helper function to detect greetings
+function isGreeting(input: string): boolean {
+  const greetings = [
+    'hi', 'hello', 'hey', 'howdy', 'greetings', 'good morning', 'good afternoon', 
+    'good evening', 'what\'s up', 'sup', 'yo', 'hiya', 'hi there', 'hello there'
+  ];
+  
+  return greetings.some(greeting => 
+    input === greeting || 
+    input.startsWith(greeting + ' ') || 
+    input.endsWith(' ' + greeting)
+  );
 }
