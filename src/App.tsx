@@ -12,6 +12,7 @@ import Achievements from "./pages/Achievements";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import FlowChart from "./pages/FlowChart";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/flowchart" element={<FlowChart />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
