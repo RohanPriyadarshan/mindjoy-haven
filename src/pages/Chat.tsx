@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import ChatBot from '@/components/ChatBot';
+import ChatBot from '@/components/chat/ChatBot';
 
 const Chat = () => {
   return (
