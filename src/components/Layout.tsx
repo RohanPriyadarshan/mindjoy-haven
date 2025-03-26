@@ -10,7 +10,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, className }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-subtle dark:bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-subtle">
       <Navbar />
       <main className={cn("flex-1 container mx-auto px-4 py-6", className)}>
         {children}
