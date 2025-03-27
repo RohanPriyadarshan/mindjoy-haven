@@ -2,6 +2,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import { AuthUser, MoodEntry, NewMoodEntry, StoreItem, UserPurchase, UserStats } from '@/types/database';
 
+// Supabase URL and anon key for fetching data directly
+const SUPABASE_URL = "https://xesnchbfalqiqfgedhgn.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlc25jaGJmYWxxaXFmZ2VkaGduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMwMTA2MjIsImV4cCI6MjA1ODU4NjYyMn0.OxxNwak2MB4UN7zHDVMhf4yIV-zSh86Hde7ThLqPfEY";
+
 // User-related functions
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -84,9 +88,9 @@ export async function getUserChatHistory(userId: string) {
 
 // Store functions
 export async function getStoreItems(): Promise<StoreItem[]> {
-  const response = await fetch(`${supabase.supabaseUrl}/rest/v1/store_items?order=price.asc`, {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/store_items?order=price.asc`, {
     headers: {
-      'apikey': supabase.supabaseKey,
+      'apikey': SUPABASE_ANON_KEY,
       'Content-Type': 'application/json'
     }
   });
@@ -101,10 +105,10 @@ export async function getStoreItems(): Promise<StoreItem[]> {
 
 export async function getUserPurchases(userId: string): Promise<UserPurchase[]> {
   const response = await fetch(
-    `${supabase.supabaseUrl}/rest/v1/user_purchases?user_id=eq.${userId}&order=purchased_at.desc`, 
+    `${SUPABASE_URL}/rest/v1/user_purchases?user_id=eq.${userId}&order=purchased_at.desc`, 
     {
       headers: {
-        'apikey': supabase.supabaseKey,
+        'apikey': SUPABASE_ANON_KEY,
         'Content-Type': 'application/json'
       }
     }
@@ -120,10 +124,10 @@ export async function getUserPurchases(userId: string): Promise<UserPurchase[]> 
   // Fetch store items for each purchase
   const itemsPromises = purchases.map(async (purchase: UserPurchase) => {
     const itemResponse = await fetch(
-      `${supabase.supabaseUrl}/rest/v1/store_items?id=eq.${purchase.item_id}&limit=1`,
+      `${SUPABASE_URL}/rest/v1/store_items?id=eq.${purchase.item_id}&limit=1`,
       {
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': SUPABASE_ANON_KEY,
           'Content-Type': 'application/json'
         }
       }
@@ -143,10 +147,10 @@ export async function getUserPurchases(userId: string): Promise<UserPurchase[]> 
 
 export async function purchaseItem(userId: string, itemId: string, currentPoints: number, itemPrice: number) {
   // Insert purchase record
-  const purchaseResponse = await fetch(`${supabase.supabaseUrl}/rest/v1/user_purchases`, {
+  const purchaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_purchases`, {
     method: 'POST',
     headers: {
-      'apikey': supabase.supabaseKey,
+      'apikey': SUPABASE_ANON_KEY,
       'Content-Type': 'application/json',
       'Prefer': 'return=minimal'
     },
@@ -163,11 +167,11 @@ export async function purchaseItem(userId: string, itemId: string, currentPoints
   
   // Update user points
   const statsResponse = await fetch(
-    `${supabase.supabaseUrl}/rest/v1/user_stats?user_id=eq.${userId}`,
+    `${SUPABASE_URL}/rest/v1/user_stats?user_id=eq.${userId}`,
     {
       method: 'PATCH',
       headers: {
-        'apikey': supabase.supabaseKey,
+        'apikey': SUPABASE_ANON_KEY,
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
