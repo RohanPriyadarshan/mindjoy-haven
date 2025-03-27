@@ -15,7 +15,7 @@ const Profile = () => {
       <h1 className="text-3xl font-bold mb-6">My Profile</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="glass md:col-span-2">
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -55,7 +55,7 @@ const Profile = () => {
         </Card>
         
         <div className="space-y-6">
-          <Card className="glass">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Award className="h-5 w-5" />
@@ -68,7 +68,7 @@ const Profile = () => {
             </CardContent>
           </Card>
           
-          <Card className="glass">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />

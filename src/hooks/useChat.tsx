@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
@@ -94,29 +95,33 @@ export function useChat(userId: string | null = null): UseChatReturn {
     // Only set up real-time updates for logged-in users
     if (!userId) return;
     
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages'
-        },
-        (payload) => {
-          // Only add messages that aren't from this session
-          const newMsg = payload.new as ChatMessageType;
-          if (!messages.some(msg => msg.id === newMsg.id)) {
-            setMessages(prev => [...prev, {
-              id: newMsg.id,
-              text: newMsg.text,
-              sender: newMsg.sender as 'user' | 'bot',
-              timestamp: new Date(newMsg.timestamp),
-            }]);
+    try {
+      const channel = supabase
+        .channel('schema-db-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'chat_messages'
+          },
+          (payload) => {
+            // Only add messages that aren't from this session
+            const newMsg = payload.new as ChatMessageType;
+            if (!messages.some(msg => msg.id === newMsg.id)) {
+              setMessages(prev => [...prev, {
+                id: newMsg.id,
+                text: newMsg.text,
+                sender: newMsg.sender as 'user' | 'bot',
+                timestamp: new Date(newMsg.timestamp),
+              }]);
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    } catch (error) {
+      console.error("Error setting up realtime updates:", error);
+    }
   };
 
   const handleSendMessage = async (input: string) => {
@@ -133,7 +138,11 @@ export function useChat(userId: string | null = null): UseChatReturn {
     
     // Save user message to database if logged in
     if (userId) {
-      await saveChatMessage(userId, userMessage.text, 'user');
+      try {
+        await saveChatMessage(userId, userMessage.text, 'user');
+      } catch (error) {
+        console.error("Error saving user message:", error);
+      }
     }
     
     try {
@@ -155,7 +164,7 @@ export function useChat(userId: string | null = null): UseChatReturn {
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response.data.response,
+        text: response.data.response || "I'm sorry, I couldn't process that right now.",
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -187,7 +196,11 @@ export function useChat(userId: string | null = null): UseChatReturn {
       
       // Save error message to database if logged in
       if (userId) {
-        await saveChatMessage(userId, errorMessage.text, 'bot');
+        try {
+          await saveChatMessage(userId, errorMessage.text, 'bot');
+        } catch (err) {
+          console.error("Error saving error message:", err);
+        }
       }
     } finally {
       setIsTyping(false);
