@@ -81,3 +81,70 @@ export async function getUserChatHistory(userId: string) {
   
   return data || [];
 }
+
+// Store functions
+export async function getStoreItems() {
+  const { data, error } = await supabase
+    .from('store_items')
+    .select('*')
+    .order('price', { ascending: true });
+    
+  if (error) {
+    console.error('Error fetching store items:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
+export async function getUserPurchases(userId: string) {
+  const { data, error } = await supabase
+    .from('user_purchases')
+    .select(`
+      id,
+      purchased_at,
+      store_items (
+        id,
+        name,
+        description,
+        price,
+        category,
+        image_url
+      )
+    `)
+    .eq('user_id', userId)
+    .order('purchased_at', { ascending: false });
+    
+  if (error) {
+    console.error('Error fetching user purchases:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
+export async function purchaseItem(userId: string, itemId: string, currentPoints: number, itemPrice: number) {
+  // Start a transaction
+  const { error: purchaseError } = await supabase
+    .from('user_purchases')
+    .insert({
+      user_id: userId,
+      item_id: itemId
+    });
+  
+  if (purchaseError) {
+    throw purchaseError;
+  }
+  
+  // Deduct points
+  const { error: pointsError } = await supabase
+    .from('user_stats')
+    .update({ points: currentPoints - itemPrice })
+    .eq('user_id', userId);
+  
+  if (pointsError) {
+    throw pointsError;
+  }
+  
+  return true;
+}

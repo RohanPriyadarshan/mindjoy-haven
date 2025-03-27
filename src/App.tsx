@@ -9,6 +9,7 @@ import Chat from "./pages/Chat";
 import Mood from "./pages/Mood";
 import Assessment from "./pages/Assessment";
 import Achievements from "./pages/Achievements";
+import Store from "./pages/Store";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/mood" element={<Mood />} />
           <Route path="/assessment" element={<Assessment />} />
           <Route path="/achievements" element={<Achievements />} />
+          <Route path="/store" element={<Store />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<NotFound />} />

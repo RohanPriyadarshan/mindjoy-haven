@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MessageCircle, BarChart2, ClipboardCheck, Award, LogIn } from 'lucide-react';
+import { Menu, X, MessageCircle, BarChart2, ClipboardCheck, Award, LogIn, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -31,6 +31,7 @@ const Navbar = () => {
     { to: '/mood', icon: <BarChart2 size={18} />, label: 'Mood Tracker' },
     { to: '/assessment', icon: <ClipboardCheck size={18} />, label: 'Assessment' },
     { to: '/achievements', icon: <Award size={18} />, label: 'Achievements' },
+    { to: '/store', icon: <ShoppingBag size={18} />, label: 'Store' },
   ];
 
   return (

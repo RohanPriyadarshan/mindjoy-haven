@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { saveChatMessage, getUserChatHistory } from '@/lib/supabase';
 import { supabase } from '@/integrations/supabase/client';
 import { ChatMessage as ChatMessageType } from '@/types/database';
-import { getAdvancedResponse } from '@/utils/chatUtils';
 
 interface Message {
   id: string;
@@ -140,19 +139,31 @@ export function useChat(userId: string | null = null): UseChatReturn {
       await saveChatMessage(userId, userMessage.text, 'user');
     }
     
-    // Generate response based on input
-    setTimeout(async () => {
-      const responseText = getAdvancedResponse(userMessage.text);
+    try {
+      // Get the last 5 messages for context (excluding the one just added)
+      const recentMessages = messages.slice(-5);
+      const contextString = recentMessages.map(m => `${m.sender}: ${m.text}`).join('\n');
+      
+      // Call the AI function to get response
+      const response = await supabase.functions.invoke('chat-ai', {
+        body: { 
+          message: input,
+          context: contextString
+        }
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to get AI response');
+      }
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: responseText,
+        text: response.data.response,
         sender: 'bot',
         timestamp: new Date(),
       };
       
       setMessages(prev => [...prev, botMessage]);
-      setIsTyping(false);
       
       // Save bot message to database if logged in
       if (userId) {
@@ -163,7 +174,27 @@ export function useChat(userId: string | null = null): UseChatReturn {
           setShowFeedback(true);
         }
       }
-    }, 1500);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      toast.error("Failed to get response. Please try again.");
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        text: "I'm sorry, I couldn't process your message. Please try again later.",
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
+      // Save error message to database if logged in
+      if (userId) {
+        await saveChatMessage(userId, errorMessage.text, 'bot');
+      }
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleCloseFeedback = () => {

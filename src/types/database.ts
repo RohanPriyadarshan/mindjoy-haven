@@ -22,6 +22,25 @@ export interface MoodWithMetadata extends MoodEntry {
   streakIncreased?: boolean;
 }
 
+// Store related types
+export type StoreItem = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category: string;
+  created_at?: string;
+};
+
+export type UserPurchase = {
+  id: string;
+  user_id: string;
+  item_id: string;
+  purchased_at: string;
+  item?: StoreItem;
+};
+
 // Custom types for the frontend
 export type AuthUser = {
   id: string;
