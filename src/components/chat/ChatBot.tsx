@@ -6,7 +6,11 @@ import ChatInput from './ChatInput';
 import ChatLoading from './ChatLoading';
 import { useChat } from '@/hooks/useChat';
 
-const ChatBot = () => {
+interface ChatBotProps {
+  userId: string | null;
+}
+
+const ChatBot = ({ userId }: ChatBotProps) => {
   const {
     messages,
     isTyping,
@@ -14,7 +18,7 @@ const ChatBot = () => {
     isLoading,
     handleSendMessage,
     handleCloseFeedback
-  } = useChat();
+  } = useChat(userId);
 
   if (isLoading) {
     return <ChatLoading />;
@@ -22,7 +26,7 @@ const ChatBot = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-9rem)] rounded-xl glass dark:glass-dark">
-      <ChatHeader />
+      <ChatHeader isLoggedIn={!!userId} />
       
       <ChatMessages 
         messages={messages} 
