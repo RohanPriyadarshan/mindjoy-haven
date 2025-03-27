@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { AuthUser, MoodEntry, NewMoodEntry, UserStats } from '@/types/database';
+import { AuthUser, MoodEntry, NewMoodEntry, StoreItem, UserPurchase, UserStats } from '@/types/database';
 
 // User-related functions
 export async function getCurrentUser(): Promise<AuthUser | null> {
@@ -83,67 +83,103 @@ export async function getUserChatHistory(userId: string) {
 }
 
 // Store functions
-export async function getStoreItems() {
-  const { data, error } = await supabase
-    .from('store_items')
-    .select('*')
-    .order('price', { ascending: true });
-    
-  if (error) {
-    console.error('Error fetching store items:', error);
+export async function getStoreItems(): Promise<StoreItem[]> {
+  const response = await fetch(`${supabase.supabaseUrl}/rest/v1/store_items?order=price.asc`, {
+    headers: {
+      'apikey': supabase.supabaseKey,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    console.error('Error fetching store items:', response.statusText);
     return [];
   }
   
-  return data || [];
+  return response.json();
 }
 
-export async function getUserPurchases(userId: string) {
-  const { data, error } = await supabase
-    .from('user_purchases')
-    .select(`
-      id,
-      purchased_at,
-      store_items (
-        id,
-        name,
-        description,
-        price,
-        category,
-        image_url
-      )
-    `)
-    .eq('user_id', userId)
-    .order('purchased_at', { ascending: false });
-    
-  if (error) {
-    console.error('Error fetching user purchases:', error);
+export async function getUserPurchases(userId: string): Promise<UserPurchase[]> {
+  const response = await fetch(
+    `${supabase.supabaseUrl}/rest/v1/user_purchases?user_id=eq.${userId}&order=purchased_at.desc`, 
+    {
+      headers: {
+        'apikey': supabase.supabaseKey,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  
+  if (!response.ok) {
+    console.error('Error fetching user purchases:', response.statusText);
     return [];
   }
   
-  return data || [];
+  const purchases = await response.json();
+  
+  // Fetch store items for each purchase
+  const itemsPromises = purchases.map(async (purchase: UserPurchase) => {
+    const itemResponse = await fetch(
+      `${supabase.supabaseUrl}/rest/v1/store_items?id=eq.${purchase.item_id}&limit=1`,
+      {
+        headers: {
+          'apikey': supabase.supabaseKey,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!itemResponse.ok) return purchase;
+    
+    const items = await itemResponse.json();
+    return {
+      ...purchase,
+      item: items[0]
+    };
+  });
+  
+  return Promise.all(itemsPromises);
 }
 
 export async function purchaseItem(userId: string, itemId: string, currentPoints: number, itemPrice: number) {
-  // Start a transaction
-  const { error: purchaseError } = await supabase
-    .from('user_purchases')
-    .insert({
+  // Insert purchase record
+  const purchaseResponse = await fetch(`${supabase.supabaseUrl}/rest/v1/user_purchases`, {
+    method: 'POST',
+    headers: {
+      'apikey': supabase.supabaseKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
       user_id: userId,
       item_id: itemId
-    });
+    })
+  });
   
-  if (purchaseError) {
-    throw purchaseError;
+  if (!purchaseResponse.ok) {
+    console.error('Error creating purchase:', purchaseResponse.statusText);
+    throw new Error('Failed to create purchase');
   }
   
-  // Deduct points
-  const { error: pointsError } = await supabase
-    .from('user_stats')
-    .update({ points: currentPoints - itemPrice })
-    .eq('user_id', userId);
+  // Update user points
+  const statsResponse = await fetch(
+    `${supabase.supabaseUrl}/rest/v1/user_stats?user_id=eq.${userId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'apikey': supabase.supabaseKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        points: currentPoints - itemPrice
+      })
+    }
+  );
   
-  if (pointsError) {
-    throw pointsError;
+  if (!statsResponse.ok) {
+    console.error('Error updating points:', statsResponse.statusText);
+    throw new Error('Failed to update points');
   }
   
   return true;

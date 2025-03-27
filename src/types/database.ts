@@ -48,3 +48,10 @@ export type AuthUser = {
   first_name?: string;
   last_name?: string;
 };
+
+// Custom API response type for user purchases with joined store items
+export type PurchaseWithItem = {
+  id: string;
+  purchased_at: string;
+  item: StoreItem;
+};

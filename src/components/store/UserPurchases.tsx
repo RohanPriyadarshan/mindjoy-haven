@@ -6,27 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-
-interface PurchaseWithDetails {
-  id: string;
-  purchased_at: string;
-  item: {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    image_url: string;
-  };
-}
+import { getUserPurchases } from '@/lib/supabase';
+import { UserPurchase } from '@/types/database';
 
 interface UserPurchasesProps {
   userId: string | null;
 }
 
 const UserPurchases = ({ userId }: UserPurchasesProps) => {
-  const [purchases, setPurchases] = useState<PurchaseWithDetails[]>([]);
+  const [purchases, setPurchases] = useState<UserPurchase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,41 +23,8 @@ const UserPurchases = ({ userId }: UserPurchasesProps) => {
       
       setIsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('user_purchases')
-          .select(`
-            id,
-            purchased_at,
-            item_id,
-            store_items (
-              id,
-              name,
-              description,
-              price,
-              category,
-              image_url
-            )
-          `)
-          .eq('user_id', userId)
-          .order('purchased_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        // Transform the data into the format we need
-        const formattedPurchases = (data || []).map((purchase) => ({
-          id: purchase.id,
-          purchased_at: purchase.purchased_at,
-          item: {
-            id: purchase.store_items.id,
-            name: purchase.store_items.name,
-            description: purchase.store_items.description,
-            price: purchase.store_items.price,
-            category: purchase.store_items.category,
-            image_url: purchase.store_items.image_url
-          }
-        }));
-        
-        setPurchases(formattedPurchases);
+        const purchasesData = await getUserPurchases(userId);
+        setPurchases(purchasesData);
       } catch (error) {
         console.error('Error fetching purchases:', error);
         toast.error('Failed to load your purchases');
@@ -115,22 +70,24 @@ const UserPurchases = ({ userId }: UserPurchasesProps) => {
         <div className="space-y-3">
           {purchases.map(purchase => (
             <Card key={purchase.id} className="flex overflow-hidden bg-background/40">
-              <div 
-                className="hidden md:block w-24 bg-cover bg-center" 
-                style={{ backgroundImage: `url(${purchase.item.image_url})` }}
-              ></div>
+              {purchase.item && (
+                <div 
+                  className="hidden md:block w-24 bg-cover bg-center" 
+                  style={{ backgroundImage: `url(${purchase.item.image_url})` }}
+                ></div>
+              )}
               
               <div className="flex-1">
                 <CardHeader className="py-3">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-base">{purchase.item.name}</CardTitle>
-                    <Badge variant="outline">{purchase.item.category}</Badge>
+                    <CardTitle className="text-base">{purchase.item?.name || 'Unknown Item'}</CardTitle>
+                    <Badge variant="outline">{purchase.item?.category || 'Unknown'}</Badge>
                   </div>
                 </CardHeader>
                 
                 <CardContent className="pb-3 pt-0">
                   <p className="text-sm text-muted-foreground mb-2">
-                    {purchase.item.description}
+                    {purchase.item?.description || 'No description available'}
                   </p>
                   
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">

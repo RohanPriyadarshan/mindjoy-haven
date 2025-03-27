@@ -5,16 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-
-interface StoreItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  category: string;
-}
+import { getStoreItems, purchaseItem, getUserPurchases } from '@/lib/supabase';
+import { StoreItem } from '@/types/database';
 
 interface StoreItemsListProps {
   userId: string | null;
@@ -25,7 +17,7 @@ interface StoreItemsListProps {
 const StoreItemsList = ({ userId, userPoints, onPurchase }: StoreItemsListProps) => {
   const [items, setItems] = useState<StoreItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userPurchases, setUserPurchases] = useState<string[]>([]);
+  const [userPurchasedItemIds, setUserPurchasedItemIds] = useState<string[]>([]);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
@@ -33,23 +25,13 @@ const StoreItemsList = ({ userId, userPoints, onPurchase }: StoreItemsListProps)
       setIsLoading(true);
       try {
         // Get store items
-        const { data: itemsData, error: itemsError } = await supabase
-          .from('store_items')
-          .select('*')
-          .order('price', { ascending: true });
-        
-        if (itemsError) throw itemsError;
-        setItems(itemsData || []);
+        const itemsData = await getStoreItems();
+        setItems(itemsData);
         
         // Get user's purchases if logged in
         if (userId) {
-          const { data: purchasesData, error: purchasesError } = await supabase
-            .from('user_purchases')
-            .select('item_id')
-            .eq('user_id', userId);
-          
-          if (purchasesError) throw purchasesError;
-          setUserPurchases((purchasesData || []).map(p => p.item_id));
+          const purchasesData = await getUserPurchases(userId);
+          setUserPurchasedItemIds(purchasesData.map(p => p.item_id));
         }
       } catch (error) {
         console.error('Error fetching store data:', error);
@@ -73,7 +55,7 @@ const StoreItemsList = ({ userId, userPoints, onPurchase }: StoreItemsListProps)
       return;
     }
     
-    if (userPurchases.includes(item.id)) {
+    if (userPurchasedItemIds.includes(item.id)) {
       toast.info('You already own this item');
       return;
     }
@@ -81,26 +63,10 @@ const StoreItemsList = ({ userId, userPoints, onPurchase }: StoreItemsListProps)
     setIsPurchasing(true);
     
     try {
-      // 1. Insert purchase record
-      const { error: purchaseError } = await supabase
-        .from('user_purchases')
-        .insert({
-          user_id: userId,
-          item_id: item.id
-        });
-      
-      if (purchaseError) throw purchaseError;
-      
-      // 2. Deduct points from user_stats
-      const { error: statsError } = await supabase
-        .from('user_stats')
-        .update({ points: userPoints - item.price })
-        .eq('user_id', userId);
-      
-      if (statsError) throw statsError;
+      await purchaseItem(userId, item.id, userPoints, item.price);
       
       // Update local state
-      setUserPurchases(prev => [...prev, item.id]);
+      setUserPurchasedItemIds(prev => [...prev, item.id]);
       onPurchase();
       
       toast.success(`Successfully purchased ${item.name}!`);
@@ -125,7 +91,7 @@ const StoreItemsList = ({ userId, userPoints, onPurchase }: StoreItemsListProps)
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {items.map(item => {
-        const isOwned = userPurchases.includes(item.id);
+        const isOwned = userPurchasedItemIds.includes(item.id);
         const canAfford = userPoints >= item.price;
         
         return (
