@@ -1,107 +1,181 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MessageCircle, BarChart2, ClipboardCheck, Award, LogIn, ShoppingBag } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { 
+  Home, MessageSquare, CalendarHeart, Star, Award, ShoppingCart,
+  User, LogOut, Menu, X
+} from 'lucide-react';
+import { 
+  Sheet, SheetContent, SheetTrigger, SheetClose 
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
-const NavItem = ({ to, icon, label, active }: { to: string; icon: React.ReactNode; label: string; active: boolean }) => (
-  <Link 
-    to={to} 
-    className={cn(
-      "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300",
-      active 
-        ? "bg-primary/10 text-primary font-medium" 
-        : "text-foreground/70 hover:bg-background/80 hover:text-foreground"
-    )}
-  >
-    {icon}
-    <span>{label}</span>
-  </Link>
+type NavItem = {
+  label: string;
+  icon: React.ReactNode;
+  href: string;
+  requiresAuth?: boolean;
+};
+
+const navItems: NavItem[] = [
+  { label: 'Home', icon: <Home size={18} />, href: '/' },
+  { label: 'Chat', icon: <MessageSquare size={18} />, href: '/chat', requiresAuth: true },
+  { label: 'Mood', icon: <CalendarHeart size={18} />, href: '/mood', requiresAuth: true },
+  { label: 'Assessment', icon: <Star size={18} />, href: '/assessment', requiresAuth: true },
+  { label: 'Achievements', icon: <Award size={18} />, href: '/achievements', requiresAuth: true },
+  { label: 'Store', icon: <ShoppingCart size={18} />, href: '/store', requiresAuth: true },
+];
+
+const MobileMenuButton = ({ onClick }: { onClick?: () => void }) => (
+  <Button variant="ghost" size="icon" onClick={onClick} className="md:hidden">
+    <Menu size={20} />
+    <span className="sr-only">Toggle menu</span>
+  </Button>
 );
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { pathname } = useLocation();
-
-  const toggleMenu = () => setIsOpen(!isOpen);
+const NavLinks = ({ 
+  vertical = false, 
+  onItemClick
+}: { 
+  vertical?: boolean;
+  onItemClick?: () => void;
+}) => {
+  const location = useLocation();
+  const { user } = useAuth();
   
-  const navItems = [
-    { to: '/chat', icon: <MessageCircle size={18} />, label: 'Chat' },
-    { to: '/mood', icon: <BarChart2 size={18} />, label: 'Mood Tracker' },
-    { to: '/assessment', icon: <ClipboardCheck size={18} />, label: 'Assessment' },
-    { to: '/achievements', icon: <Award size={18} />, label: 'Achievements' },
-    { to: '/store', icon: <ShoppingBag size={18} />, label: 'Store' },
-  ];
-
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-lg bg-background/70 border-b border-border/40">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link 
-            to="/" 
-            className="font-semibold text-xl tracking-tight hover:opacity-80 transition-opacity"
-          >
-            Solace AI
-          </Link>
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="flex items-center gap-4 md:hidden">
-          <button
-            onClick={toggleMenu}
-            className="flex items-center p-2"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-
-        {/* Desktop navigation */}
-        <nav className="hidden md:flex md:items-center md:gap-6">
-          {navItems.map((item) => (
-            <NavItem 
-              key={item.to}
-              to={item.to} 
-              icon={item.icon} 
-              label={item.label}
-              active={pathname === item.to}
-            />
-          ))}
-          {pathname !== '/login' && (
-            <Link to="/login">
-              <Button className="ml-2" variant="outline" size="sm">
-                <LogIn className="mr-2 h-4 w-4" />
-                Login
-              </Button>
-            </Link>
-          )}
-        </nav>
-
-        {/* Mobile navigation */}
-        {isOpen && (
-          <div className="absolute top-16 inset-x-0 bg-background/95 backdrop-blur-lg border-b border-border/40 md:hidden animate-fade-in">
-            <nav className="container py-4 flex flex-col gap-2">
-              {navItems.map((item) => (
-                <NavItem 
-                  key={item.to}
-                  to={item.to} 
-                  icon={item.icon} 
-                  label={item.label}
-                  active={pathname === item.to}
-                />
-              ))}
-              {pathname !== '/login' && (
-                <Link to="/login" className="w-full">
-                  <Button className="w-full mt-2" variant="outline" size="sm">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Login
-                  </Button>
-                </Link>
+    <nav className={cn(
+      "flex items-center gap-1",
+      vertical ? "flex-col w-full" : "hidden md:flex"
+    )}>
+      {navItems
+        .filter(item => !item.requiresAuth || (item.requiresAuth && user))
+        .map((item) => {
+          const isActive = location.pathname === item.href;
+          
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              onClick={onItemClick}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                vertical ? "w-full" : "",
+                isActive 
+                  ? "bg-secondary text-foreground" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
               )}
-            </nav>
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          );
+        })
+      }
+    </nav>
+  );
+};
+
+const UserMenu = () => {
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
+  
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("You have been signed out");
+    navigate('/');
+  };
+  
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2">
+        <Button variant="outline" onClick={() => navigate('/login')}>
+          Sign In
+        </Button>
+        <Button onClick={() => navigate('/register')}>
+          Sign Up
+        </Button>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="flex items-center gap-4">
+      <div className="hidden md:block">
+        <p className="text-sm font-medium">
+          {profile?.first_name || user.email}
+        </p>
+      </div>
+      
+      <Button variant="ghost" size="icon" className="rounded-full bg-primary/10" onClick={() => navigate('/profile')}>
+        <User size={18} />
+        <span className="sr-only">User menu</span>
+      </Button>
+      
+      <Button variant="ghost" size="icon" onClick={handleSignOut}>
+        <LogOut size={18} />
+        <span className="sr-only">Sign out</span>
+      </Button>
+    </div>
+  );
+};
+
+const Navbar = () => {
+  const [open, setOpen] = useState(false);
+  
+  return (
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="flex items-center justify-between w-full gap-4">
+          <div className="flex items-center gap-2">
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <MobileMenuButton />
+              </SheetTrigger>
+              <SheetContent side="left" className="pr-0">
+                <div className="flex flex-col gap-6 h-full">
+                  <div className="flex items-center justify-between pr-4">
+                    <Link 
+                      to="/" 
+                      className="flex items-center gap-2 font-semibold" 
+                      onClick={() => setOpen(false)}
+                    >
+                      <span>Solace AI</span>
+                    </Link>
+                    <SheetClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Close</span>
+                    </SheetClose>
+                  </div>
+                  
+                  <NavLinks vertical onItemClick={() => setOpen(false)} />
+                  
+                  <div className="mt-auto flex items-center justify-between pr-4 pb-6">
+                    <ThemeToggle />
+                    <UserMenu />
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+            
+            <Link to="/" className="flex items-center gap-2 font-semibold">
+              <span>Solace AI</span>
+            </Link>
           </div>
-        )}
+          
+          <NavLinks />
+          
+          <div className="flex items-center gap-2">
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <UserMenu />
+          </div>
+        </div>
       </div>
     </header>
   );
