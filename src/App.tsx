@@ -15,6 +15,7 @@ import Store from "./pages/Store";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/assessment" element={<AuthGuard><Assessment /></AuthGuard>} />
             <Route path="/achievements" element={<AuthGuard><Achievements /></AuthGuard>} />
             <Route path="/store" element={<AuthGuard><Store /></AuthGuard>} />
+            <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
             <Route path="/login" element={<AuthGuard requireAuth={false}><Login /></AuthGuard>} />
             <Route path="/register" element={<AuthGuard requireAuth={false}><Register /></AuthGuard>} />
             <Route path="*" element={<NotFound />} />

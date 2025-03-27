@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { AuthUser, MoodEntry, NewMoodEntry, StoreItem, UserPurchase, UserStats } from '@/types/database';
 
@@ -88,19 +87,84 @@ export async function getUserChatHistory(userId: string) {
 
 // Store functions
 export async function getStoreItems(): Promise<StoreItem[]> {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/store_items?order=price.asc`, {
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Content-Type': 'application/json'
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/store_items?order=price.asc`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Error fetching store items:', response.statusText);
+      return getMockStoreItems(); // Fallback to mock data
     }
-  });
-  
-  if (!response.ok) {
-    console.error('Error fetching store items:', response.statusText);
-    return [];
+    
+    const data = await response.json();
+    
+    if (!data || data.length === 0) {
+      return getMockStoreItems(); // Fallback to mock data if empty
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching store items:', error);
+    return getMockStoreItems(); // Fallback to mock data
   }
-  
-  return response.json();
+}
+
+// Mock data for store items if database is empty
+function getMockStoreItems(): StoreItem[] {
+  return [
+    {
+      id: '1',
+      name: 'Premium Chat Access',
+      description: 'Unlock unlimited AI chat sessions with advanced features',
+      price: 50,
+      category: 'feature',
+      image_url: 'https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    },
+    {
+      id: '2',
+      name: 'Dark Theme',
+      description: 'Unlock a beautiful dark theme for the entire application',
+      price: 25,
+      category: 'theme',
+      image_url: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    },
+    {
+      id: '3',
+      name: 'Mood Insights Pro',
+      description: 'Get detailed analytics and insights about your mood patterns',
+      price: 75,
+      category: 'feature',
+      image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    },
+    {
+      id: '4',
+      name: 'Achievement Badge: Early Adopter',
+      description: 'A special badge to show you were among the first users',
+      price: 10,
+      category: 'badge',
+      image_url: 'https://images.unsplash.com/photo-1591196128302-3f0c4e915daa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    },
+    {
+      id: '5',
+      name: 'Custom App Icon',
+      description: 'Choose from a selection of custom icons for the app',
+      price: 30,
+      category: 'customization',
+      image_url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    },
+    {
+      id: '6',
+      name: 'Meditation Sessions Pack',
+      description: 'Unlock a pack of 10 guided meditation sessions',
+      price: 100,
+      category: 'content',
+      image_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    }
+  ];
 }
 
 export async function getUserPurchases(userId: string): Promise<UserPurchase[]> {

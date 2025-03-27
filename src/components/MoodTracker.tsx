@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -55,7 +54,7 @@ const MoodTracker = () => {
       description: "Keep the streak going for bonus points!",
       action: {
         label: "View Rewards",
-        onClick: () => navigate('/achievements')
+        onClick: () => navigate('/store')
       },
     });
   };
@@ -85,9 +84,7 @@ const MoodTracker = () => {
   };
 
   const goToStore = () => {
-    toast.info("Store feature coming soon!", {
-      description: "You'll be able to redeem rewards with your points soon.",
-    });
+    navigate('/store');
   };
 
   return (

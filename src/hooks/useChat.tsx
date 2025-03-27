@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
@@ -39,7 +38,7 @@ export function useChat(userId: string | null = null): UseChatReturn {
           // If logged in, load chat history
           const chatHistory = await getUserChatHistory(userId);
           
-          if (chatHistory.length > 0) {
+          if (chatHistory && chatHistory.length > 0) {
             // Convert to the expected format
             const formattedMessages = chatHistory.map((msg: ChatMessageType) => ({
               id: msg.id,
@@ -51,11 +50,6 @@ export function useChat(userId: string | null = null): UseChatReturn {
             setMessages(formattedMessages);
           } else {
             addWelcomeMessage();
-            
-            // Save welcome message to database for logged in users
-            if (userId) {
-              await saveChatMessage(userId, messages[0].text, 'bot');
-            }
           }
           
           // Set up real-time updates for logged in users
@@ -66,7 +60,10 @@ export function useChat(userId: string | null = null): UseChatReturn {
         }
       } catch (error) {
         console.error("Error initializing chat:", error);
-        toast.error("Failed to load chat");
+        addWelcomeMessage();
+        toast.error("Failed to load chat history", {
+          description: "Using default welcome message instead"
+        });
       } finally {
         setIsLoading(false);
       }
