@@ -169,4 +169,3 @@ Users earn points through:
 3. Multiple entries in one day (5 points per additional entry)
 
 Points can be spent in the rewards store on virtual items.
-
