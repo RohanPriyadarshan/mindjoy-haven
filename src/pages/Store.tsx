@@ -24,12 +24,15 @@ const Store = () => {
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        // Use mock data for demonstration
+        // Use mock data for demonstration - corrected to match UserStats type
         setUserStats({
           user_id: 'mock-user',
           streak: 5,
           points: 100,
-          last_login: new Date().toISOString()
+          last_entry_date: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          id: 'mock-id'
         });
       } finally {
         setIsLoading(false);
