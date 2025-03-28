@@ -12,12 +12,14 @@ import {
   getAIResponse,
   handleChatError
 } from '@/utils/chatHelpers';
+import { getAdvancedResponse } from '@/utils/chatUtils';
 
 export function useChat(userId: string | null = null): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [useLocalFallback, setUseLocalFallback] = useState(false);
   const navigate = useNavigate();
 
   // Initialize chat and load history if user is logged in
@@ -95,8 +97,40 @@ export function useChat(userId: string | null = null): UseChatReturn {
     }
     
     try {
-      // Get AI response
-      const botMessage = await getAIResponse(input, messages);
+      let botMessage: Message;
+      
+      if (useLocalFallback) {
+        // Use local fallback response
+        const fallbackResponse = getAdvancedResponse(input);
+        botMessage = {
+          id: (Date.now() + 1).toString(),
+          text: fallbackResponse,
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+      } else {
+        // Try to get AI response from OpenAI
+        try {
+          botMessage = await getAIResponse(input, messages);
+        } catch (error) {
+          console.error("Error getting AI response:", error);
+          
+          // If OpenAI fails, switch to local fallback and get response
+          setUseLocalFallback(true);
+          toast.info("Using offline mode", {
+            description: "AI responses are now generated locally"
+          });
+          
+          const fallbackResponse = getAdvancedResponse(input);
+          botMessage = {
+            id: (Date.now() + 1).toString(),
+            text: fallbackResponse,
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+        }
+      }
+      
       setMessages(prev => [...prev, botMessage]);
       
       // Save bot message to database if logged in
