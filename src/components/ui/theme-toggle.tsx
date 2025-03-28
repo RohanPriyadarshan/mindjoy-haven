@@ -1,29 +1,19 @@
 
 import * as React from "react";
-import { Moon, Sun } from "lucide-react";
+import { Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/ThemeProvider";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
+  // This is now just a placeholder component that doesn't actually toggle themes
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={toggleTheme}
-      aria-label="Toggle theme"
+      aria-label="Light mode"
+      className="hidden" // Hide this button since dark mode is not functional
     >
-      {theme === 'light' ? (
-        <Moon className="h-[1.2rem] w-[1.2rem]" />
-      ) : (
-        <Sun className="h-[1.2rem] w-[1.2rem]" />
-      )}
-      <span className="sr-only">Toggle theme</span>
+      <Sun className="h-[1.2rem] w-[1.2rem]" />
+      <span className="sr-only">Light mode</span>
     </Button>
   );
 }
